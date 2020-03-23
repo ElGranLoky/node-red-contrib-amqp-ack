@@ -58,7 +58,24 @@
                 <textarea id="node-config-input-topology" style="display: none; resize: vertical; width:100%; height: 10em"></textarea>
                 <div style="height: 250px;" class="node-text-editor" id="node-config-input-topology-editor" ></div>
             </div>
-
+        </div>
+        <div id="amqp-server-tab-prefetch" style:"display: none;">
+            <div class="form-row">
+                <input type="checkbox" id="node-config-input-prefetch" style="display: inline-block; width: auto; vertical-align: top;">
+                <label for="node-config-input-prefetch" style="width: 70%;">Enable Prefetch</label>
+            </div>
+            <div class="form-row">
+                <label for="node-config-input-prefetchvalue"><i class="fa fa-stack-exchange"></i> Value</label>
+                <input type="text" id="node-config-input-prefetchvalue" placeholder=" Set value (number) for prefetch messages">
+            </div>
+            <div class="form-row">
+                    <input type="checkbox" id="node-config-input-prefetchack" style="display: inline-block; width: auto; vertical-align: top;">
+                    <label for="node-config-input-prefetchack" style="width: 70%;">Enable ACK timeout</label>
+                </div>            
+            <div class="form-row">
+                <label for="node-config-input-prefetchvalueack"><i class="fa fa-hourglass-o"></i> Timeout ACK</label>
+                <input type="text" id="node-config-input-prefetchvalueack" placeholder=" Set value (number) for delay ack per message in prefetch">
+            </div>
         </div>
     </div>
 </script>

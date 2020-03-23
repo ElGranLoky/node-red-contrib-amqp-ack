@@ -2,23 +2,23 @@
 declare var RED: any;
 
 //
-// -- amqp in --------------------------------------------------------------------------------------
+// -- amqp ack --------------------------------------------------------------------------------------
 //
-RED.nodes.registerType("amqp in", {
-    category: "input",
+RED.nodes.registerType("amqp ack", {
+    category: "output",
     defaults: {
         name: { value: "" },
         topic: { value: "" },
-        iotype: { value: "4", required: true },
+        iotype: { value: "1", required: true },
         ioname: { value: "" },
         server: { type: "amqp-server", required: true }
     },
     inputs: 1,
     outputs: 1,
-    color: "#ff9933",
-    icon: "bridge.png",
+    color: "#2e8b57",
+    icon: "font-awesome/fa-flag-o",
     label: function() {
-        return this.name || this.ioname || "amqp in";
+        return this.name || this.ioname || "amqp ack";
     },
     labelStyle: function() {
         return this.name ? "node_label_italic" : "";

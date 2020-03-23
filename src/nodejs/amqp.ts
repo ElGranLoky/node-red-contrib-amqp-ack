@@ -36,6 +36,9 @@ module.exports = function(RED) {
         // "4": queue
         if (node.ioType === "4") {
           node.src =  node.server.connection.declareQueue(node.ioName);
+          if (node.server.prefetch) {
+            node.src.prefetch(Number(node.server.prefetchvalue));
+          }
         } else {
           node.src =  node.server.connection.declareExchange(node.ioName, exchangeTypes[node.ioType]);
         }
@@ -88,25 +91,101 @@ module.exports = function(RED) {
 
     // node specific initialization code
     node.initialize = function () {
-      function Consume(msg) {
-        node.send({
-          topic: node.topic || msg.fields.routingKey,
-          payload: msg.getContent(),
-          amqpMessage: msg
+      if (node.server.prefetch) {
+        function Consumeack(msg) {
+          node.send({
+            topic: node.topic || msg.fields.routingKey,
+            payload: msg.getContent(),
+            amqpfields: msg.fields
+          });
+          if (node.server.prefetchack) {
+            setTimeout( function () {
+              try {
+                msg.ack();
+              } catch (ein) {
+                node.error("No ack send in last message");
+              }
+           }, Number(node.server.prefetchvalueack));
+          } else {
+              if (!node.context().global.get("amqpobjectsacks")) {
+                node.context().global.set("amqpobjectsacks", []);
+              }
+            var localamqpobjectsacks = node.context().global.get("amqpobjectsacks");
+            localamqpobjectsacks.push(Object.assign(msg));
+            node.context().global.set("amqpobjectsacks", localamqpobjectsacks);
+          };
+        };
+            node.src.activateConsumer(Consumeack, {noAck: (!node.server.prefetch)}).then(function () {
+              node.status({fill: "green", shape: "dot", text: "connected"});
+            }).catch(function (e) {
+              node.status({fill: "red", shape: "dot", text: "error"});
+              node.error("AMQP input error: " + e.message);
+            });
+      } else {
+        function Consumenack(msg) {
+          node.send({
+            topic: node.topic || msg.fields.routingKey,
+            payload: msg.getContent(),
+            amqpMessage: msg
+          });
+        };
+          node.src.activateConsumer(Consumenack, {noAck: (!node.server.prefetch)}).then(function () {
+            node.status({fill: "green", shape: "dot", text: "connected"});
+          }).catch(function (e) {
+            node.status({fill: "red", shape: "dot", text: "error"});
+            node.error("AMQP input error: " + e.message);
+          });
+      }
+  };
+    if (!node.ioName) {
+      node.on("input", function(msg){
+        node.ioName = msg.readFrom;
+        initialize(node);
+      });
+    } else {
+      initialize(node);
+    }
+}
+//
+//-- AMQP ACK -----------------------------------------------------------------
+//
+function AmqpAck(n) {
+  var node = this;
+  RED.nodes.createNode(node, n);
+
+  node.source = n.source;
+  node.topic = n.topic;
+  node.ioType = n.iotype;
+  node.ioName = n.ioname;
+  node.server = RED.nodes.getNode(n.server);
+
+  // set amqp node type initialization parameters
+  node.amqpType = "output";
+  node.src = null;
+
+  // node specific initialization code
+  node.initialize = function () {
+    node.on("input", function (msg) {
+      if (msg.amqpfields) {
+        var localamqpobjectsacks = node.context().global.get("amqpobjectsacks");
+        var amqpfindack = localamqpobjectsacks.find( element => element.fields.deliveryTag === msg.amqpfields.deliveryTag);
+        amqpfindack.ack();
+        localamqpobjectsacks = localamqpobjectsacks.filter(function( obj ) {
+          return (obj.fields.deliveryTag !== msg.amqpfields.deliveryTag) && (obj.fields.consumerTag === msg.amqpfields.consumerTag);
+        });
+        node.context().global.set("amqpobjectsacks", localamqpobjectsacks);
+        node.send(msg);
+      } else {
+        node.warn({
+          error: "msg without amqpfields per ack",
+          msg: msg
         });
       }
+    });
+  };
 
-      node.src.activateConsumer(Consume, {noAck: true}).then(function () {
-        node.status({fill: "green", shape: "dot", text: "connected"});
-      }).catch(function (e) {
-        node.status({fill: "red", shape: "dot", text: "error"});
-        node.error("AMQP input error: " + e.message);
-      });
-    };
-
-    initialize(node);
-  }
-
+  initialize(node);
+}
 
 //
 //-- AMQP OUT -----------------------------------------------------------------
@@ -158,11 +237,16 @@ module.exports = function(RED) {
     node.useTopology = n.usetopology;
     node.topology = n.topology;
     node.useca = n.useca;
-	node.ca = n.ca || null;
+	  node.ca = n.ca || null;
 
     node.clientCount = 0;
     node.connectionPromise = null;
     node.connection = null;
+
+    node.prefetch = n.prefetch;
+    node.prefetchvalue = n.prefetchvalue;
+    node.prefetchack = n.prefetchack;
+    node.prefetchvalueack = n.prefetchvalueack;
 
     node.claimConnection = function() {
       if (node.clientCount === 0) {
@@ -249,6 +333,7 @@ module.exports = function(RED) {
   // Register the node by name. This must be called before overriding any of the
   // Node functions.
   RED.nodes.registerType("amqp in", AmqpIn);
+  RED.nodes.registerType("amqp ack", AmqpAck);
   RED.nodes.registerType("amqp out", AmqpOut);
   RED.nodes.registerType("amqp-server", AmqpServer, {
     credentials: {

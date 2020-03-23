@@ -30,7 +30,11 @@ RED.nodes.registerType("amqp-server", {
                             "\t\t{\"source\": \"exchange1\", \"exchange\": \"exchange2\", \"pattern\": \"error\"},\n" +
                             "\t\t{\"source\": \"exchange2\", \"queue\": \"queue2\"}\n" +
                             "\t]\n" +
-                            "}"}
+                            "}"},
+        prefetch: { value: false},
+        prefetchvalue: { value: 1, validate: RED.validators.number() },
+        prefetchack: { value: false},
+        prefetchvalueack: { value: 10, validate: RED.validators.number() }
     },
     credentials: {
         user: {type: "text"},
@@ -61,6 +65,10 @@ RED.nodes.registerType("amqp-server", {
         tabs.addTab({
             id: "amqp-server-tab-topology",
             label: "Topology"
+        });
+        tabs.addTab({
+            id: "amqp-server-tab-prefetch",
+            label: "Prefetch"
         });
         setTimeout(function() { tabs.resize(); }, 0);
 
@@ -94,6 +102,40 @@ RED.nodes.registerType("amqp-server", {
         $("#node-config-input-usetls").on("click", function() {
             updateTLSOptions();
         });
+
+		function updatePrefetchStatus() {
+		    //node-config-input-prefetch
+			if ($("#node-config-input-prefetch").is(":checked")) {
+                $("#node-config-input-prefetchvalue").prop("disabled", false);
+                $("#node-config-input-prefetchack").prop("disabled", false);
+                $("#node-config-input-prefetchackvalue").prop("disabled", false);
+			} else {
+                $("#node-config-input-prefetchvalue").prop("disabled", true);
+                $("#node-config-input-prefetchack").prop("disabled", true);
+                $("#node-config-input-prefetchackvalue").prop("disabled", true);
+			}
+		}
+
+		updatePrefetchStatus();
+
+		$("#node-config-input-prefetch").on("click", function() {
+			updatePrefetchStatus();
+        });
+
+		function updatePrefetchACKStatus() {
+		    //node-config-input-prefetchack
+			if ($("#node-config-input-prefetchack").is(":checked")) {
+				$("#node-config-input-prefetchvalueack").prop("disabled", false);
+			} else {
+				$("#node-config-input-prefetchvalueack").prop("disabled", true);
+			}
+		}
+
+		updatePrefetchACKStatus();
+
+		$("#node-config-input-prefetchack").on("click", function() {
+			updatePrefetchACKStatus();
+		});
 
         // use editor
         var topologyField = $("#node-config-input-topology");
