@@ -16,5 +16,5 @@ node-red-contrib-amqp-*.tgz
 package-lock.json
 
 # Speed-up testing with gulp in docker
-Dockerfile
-runner.sh
+##Dockerfile
+##runner.sh

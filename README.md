@@ -10,9 +10,11 @@ It uses the [amqp-ts](https://github.com/abreits/amqp-ts) library for the AMQP c
 ## Table of Contents
 - [Installation](#installation)
 - [Overview](#overview)
+- [Prefetch](#prefetch)
 - [Known issues](#knownissues)
 - [What's new](#whatsnew)
 - [Roadmap](#roadmap)
+- [Fast developer](#developer)
 
 
 ## Installation     <a name="installation"></a>
@@ -46,6 +48,10 @@ Subscribes to an AMQP exchange or queue and reads messages from it. It outputs a
 If a topic is defined in the input node definition, that will be sent as `msg.topic` instead of the routing key.
 
 In the settings you can only define the exchange type or queue and it's name. If you need to use an exchange or a queue with specific settings you can define the exchange or queue in the [topology](#topology) tab of the AMQP server configuration node. The input node will use the exchange or queue defined in the topology.
+
+### input: ack
+
+AMQP ack node. Return ack for amqp in queue in the flow when finish the process.
 
 ### output: amqp
 
@@ -88,13 +94,45 @@ Topology configuration example:
 };
 ```
 
+## Prefetch <a name="prefetch"></a>
+
+### Only Prefetch
+
+Enable prefetch and limit the number of msg by consumer. **Atention**: The consumer get the msg it keeps **unacked** forever.
+
+![Nodered Prefetch without ack](./img/nodered_prefetch_without_ack.png)
+
+![Rabbit without ack](./img/rabbit_prefetch_without_ack.png)
+
+### Prefetch with timeout
+
+With prefetch enable, can enable timeout per msg in ms. After the timeout the msg get **ACK**.
+
+![Nodered Prefetch timeout ack](./img/nodered_prefetch_timeout_ack.png)
+
+![Rabbit timeout ack](./img/rabbit_prefetch_timeout_ack.png)
+
+### Prefetch with ack node
+
+We can use a node ACK for send the ACK when the process end, without set a fixed time. In this mode, is use a global variable *amqpobjectsacks* to keep the tags for each msg.
+
+![Nodered Prefetch node ack](./img/nodered_prefetch_node_ack.png)
+
+![Nodered Prefetch node ack multiple workers](./img/nodered_prefetch_node_ack_multiple_workers.png)
+
+![Rabbit node ack](./img/rabbit_prefetch_node_ack.png)
+
 
 ## Known issues     <a name="knownissues"></a>
 - Entering invalid credentials (username/password) in the AMQP configuration node can cause node-red to malfunction
 - Package library 'amqlib' is outdated, requiring breaking changes
 - Build libraries 'typescript' and 'gulp-typescript' are outdated, requiring breaking changes
+- Prefetch with timeout and with ack node can`t use simultaneous
 
 ## What's new     <a name="whatsnew"></a>
+
+### version 1.0.3 
+- enable prefect
 
 ### version 1.0.1
 - bugfix, introduced by v1.0.0: Connections would not establish on startup, but would after a deploy.
@@ -150,8 +188,16 @@ Topology configuration example:
  * All dependencies upgraded to current
  * Test suite in place
  
-
-
+## Fast developer <a name="developer"></a>
+ - git clone repository
+ - docker build . -f Dockerfile -t gulp:latest
+ - docker run -v ${PWD}:/src gulp 
+ - docker run -v ${PWD}:/install -p 1880:1880 --name noderedtest nodered/node-red:latest-minimal
+ - docker exec -it noderedtest bash
+ - cd /usr/src/node-red/
+ - npm install /install
+ - exit
+ - docker restart noderedtest
 
 
 

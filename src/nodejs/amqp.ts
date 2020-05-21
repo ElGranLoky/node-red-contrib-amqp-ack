@@ -160,7 +160,7 @@ function AmqpAck(n) {
   node.server = RED.nodes.getNode(n.server);
 
   // set amqp node type initialization parameters
-  node.amqpType = "output";
+  node.amqpType = "input";
   node.src = null;
 
   // node specific initialization code
@@ -169,12 +169,17 @@ function AmqpAck(n) {
       if (msg.amqpfields) {
         var localamqpobjectsacks = node.context().global.get("amqpobjectsacks");
         var amqpfindack = localamqpobjectsacks.find( element => element.fields.deliveryTag === msg.amqpfields.deliveryTag);
-        amqpfindack.ack();
+        try {
+          amqpfindack.ack();
+        } catch (e) {
+          node.context().global.set("amqpobjectsacks", []);
+          node.error("Global amqp objects acks with old values: " + e.message);
+        }
         localamqpobjectsacks = localamqpobjectsacks.filter(function( obj ) {
           return (obj.fields.deliveryTag !== msg.amqpfields.deliveryTag) && (obj.fields.consumerTag === msg.amqpfields.consumerTag);
         });
         node.context().global.set("amqpobjectsacks", localamqpobjectsacks);
-        node.send(msg);
+        node.send(msg);  
       } else {
         node.warn({
           error: "msg without amqpfields per ack",

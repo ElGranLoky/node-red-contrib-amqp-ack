@@ -5,11 +5,11 @@ declare var RED: any;
 // -- amqp ack --------------------------------------------------------------------------------------
 //
 RED.nodes.registerType("amqp ack", {
-    category: "output",
+    category: "input",
     defaults: {
         name: { value: "" },
         topic: { value: "" },
-        iotype: { value: "1", required: true },
+        iotype: { value: "4", required: true },
         ioname: { value: "" },
         server: { type: "amqp-server", required: true }
     },
