@@ -1,7 +1,7 @@
 {
-  "name": "node-red-contrib-amqp-prefetch",
+  "name": "node-red-contrib-amqp-ack",
   "version": "1.0.3",
-  "description": "Node-RED AMQP input and output nodes with ack and prefectch",
+  "description": "Node-RED AMQP input and output nodes with ack and prefetch",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -24,7 +24,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/elgranloky/node-red-contrib-amqp-prefetch"
+    "url": "https://github.com/elgranloky/node-red-contrib-amqp-ack"
   },
   "dependencies": {
     "amqp-ts": "^1.0.0",
