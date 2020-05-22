@@ -6,6 +6,8 @@ Node-RED AMQP input and output nodes
 
 It uses the [amqp-ts](https://github.com/abreits/amqp-ts) library for the AMQP connectivity.
 
+Thanks to [abreits](https://flows.nodered.org/user/abreits) for release [node-red-contrib-amqp](https://flows.nodered.org/node/node-red-contrib-amqp)
+
 
 ## Table of Contents
 - [Installation](#installation)
@@ -48,6 +50,8 @@ Subscribes to an AMQP exchange or queue and reads messages from it. It outputs a
 If a topic is defined in the input node definition, that will be sent as `msg.topic` instead of the routing key.
 
 In the settings you can only define the exchange type or queue and it's name. If you need to use an exchange or a queue with specific settings you can define the exchange or queue in the [topology](#topology) tab of the AMQP server configuration node. The input node will use the exchange or queue defined in the topology.
+
+You can send to the node `msg.readFrom` to received dynamically the name of the queue or exchange that will be read.
 
 ### input: ack
 
@@ -122,14 +126,24 @@ We can use a node ACK for send the ACK when the process end, without set a fixed
 
 ![Rabbit node ack](./img/rabbit_prefetch_node_ack.png)
 
+### Prefetch with ack node and dynamic set queue
+
+If use `msg.readFrom` in amqp in, ack node need a switch node for every queue name.
+
+![Nodered Prefetch dynamic queue node ack](./img/nodered_prefetch_dynamic_queue_ack.png)
 
 ## Known issues     <a name="knownissues"></a>
 - Entering invalid credentials (username/password) in the AMQP configuration node can cause node-red to malfunction
 - Package library 'amqlib' is outdated, requiring breaking changes
 - Build libraries 'typescript' and 'gulp-typescript' are outdated, requiring breaking changes
 - Prefetch with timeout and with ack node can`t use simultaneous
+- Prefetch with only one msg sometimes stuck with ack node if have old data in amqpobjectsack
 
 ## What's new     <a name="whatsnew"></a>
+
+### version 1.0.4
+- Add credits.
+- Add info for dynamically set the name of the queue or exchange in input nodes.
 
 ### version 1.0.3 
 - enable prefect

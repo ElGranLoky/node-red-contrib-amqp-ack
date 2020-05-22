@@ -20,5 +20,7 @@
    <p>AMQP ack node. Return ack for amqp in queue in the flow when finish the process.</p>
    <p>Don't use <b>msg.amqpfields</b>, is use to keep de tag from the queue to return the ack to the AMQP queue server.</p>
    <p>The amqp server config and the queue name in this node <b>must be</b> the same as the AMQP in in the flow of the messages.</p>
-   <p> 
+   <p>
+   <p>When use <b>msg.readFrom</b> in amqp, <b>must</b> create and ack for any dinamic queue, and switch with the parameter <b>msg.amqpfields.routingKey</b>.</p>
+   <p>
 </script>
