@@ -141,6 +141,9 @@ If use `msg.readFrom` in amqp in, ack node need a switch node for every queue na
 
 ## What's new     <a name="whatsnew"></a>
 
+### version 1.0.5
+- Remove images in package.
+
 ### version 1.0.4
 - Add credits.
 - Add info for dynamically set the name of the queue or exchange in input nodes.
