@@ -107,12 +107,12 @@ module.exports = function(RED) {
               }
            }, Number(node.server.prefetchvalueack));
           } else {
-              if (!node.context().global.get("amqpobjectsacks")) {
-                node.context().global.set("amqpobjectsacks", []);
+              if (!node.context().flow.get("amqpobjectsacks")) {
+                node.context().flow.set("amqpobjectsacks", []);
               }
-            var localamqpobjectsacks = node.context().global.get("amqpobjectsacks");
+            var localamqpobjectsacks = node.context().flow.get("amqpobjectsacks");
             localamqpobjectsacks.push(Object.assign(msg));
-            node.context().global.set("amqpobjectsacks", localamqpobjectsacks);
+            node.context().flow.set("amqpobjectsacks", localamqpobjectsacks);
           };
         };
             node.src.activateConsumer(Consumeack, {noAck: (!node.server.prefetch)}).then(function () {
@@ -157,6 +157,7 @@ function AmqpAck(n) {
   node.topic = n.topic;
   node.ioType = n.iotype;
   node.ioName = n.ioname;
+  node.nack = n.nack;
   node.server = RED.nodes.getNode(n.server);
 
   // set amqp node type initialization parameters
@@ -167,18 +168,22 @@ function AmqpAck(n) {
   node.initialize = function () {
     node.on("input", function (msg) {
       if (msg.amqpfields) {
-        var localamqpobjectsacks = node.context().global.get("amqpobjectsacks");
+        var localamqpobjectsacks = node.context().flow.get("amqpobjectsacks");
         var amqpfindack = localamqpobjectsacks.find( element => element.fields.deliveryTag === msg.amqpfields.deliveryTag);
         try {
-          amqpfindack.ack();
+          if (!node.nack) {
+            amqpfindack.ack();
+          } else {
+            amqpfindack.nack();
+          } 
         } catch (e) {
-          node.context().global.set("amqpobjectsacks", []);
-          node.error("Global amqp objects acks with old values: " + e.message);
+          node.context().flow.set("amqpobjectsacks", []);
+          node.error("Flow amqp objects acks with old values: " + e.message);
         }
         localamqpobjectsacks = localamqpobjectsacks.filter(function( obj ) {
           return (obj.fields.deliveryTag !== msg.amqpfields.deliveryTag) && (obj.fields.consumerTag === msg.amqpfields.consumerTag);
         });
-        node.context().global.set("amqpobjectsacks", localamqpobjectsacks);
+        node.context().flow.set("amqpobjectsacks", localamqpobjectsacks);
         node.send(msg);  
       } else {
         node.warn({

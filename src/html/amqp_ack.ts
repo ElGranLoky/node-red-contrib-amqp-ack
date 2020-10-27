@@ -11,6 +11,7 @@ RED.nodes.registerType("amqp ack", {
         topic: { value: "" },
         iotype: { value: "4", required: true },
         ioname: { value: "" },
+        nack: { value: false},
         server: { type: "amqp-server", required: true }
     },
     inputs: 1,

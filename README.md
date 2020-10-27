@@ -55,7 +55,7 @@ You can send to the node `msg.readFrom` to received dynamically the name of the 
 
 ### input: ack
 
-AMQP ack node. Return ack for amqp in queue in the flow when finish the process.
+AMQP ack node. Return ack or nack for amqp in queue in the flow when finish the process.
 
 ### output: amqp
 
@@ -140,6 +140,10 @@ If use `msg.readFrom` in amqp in, ack node need a switch node for every queue na
 - Prefetch with only one msg sometimes stuck with ack node if have old data in amqpobjectsack
 
 ## What's new     <a name="whatsnew"></a>
+
+### version 1.0.6
+- Add nack
+- Change control ack from global to flow
 
 ### version 1.0.5
 - Remove images in package.

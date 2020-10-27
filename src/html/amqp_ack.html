@@ -8,7 +8,12 @@
     <div class="form-row">
         <label for="node-input-srcname"></label>
         <input type="text" id="node-input-ioname" placeholder="AMQP queue name">
-    </div>    
+    </div>
+    <br>
+    <div class="form-row">
+        <input type="checkbox" id="node-input-nack" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-nack" style="width: 70%;">Enable Nack</label>
+    </div>        
     <br/>
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
@@ -17,7 +22,7 @@
 </script>
 
 <script type="text/x-red" data-help-name="amqp ack">
-   <p>AMQP ack node. Return ack for amqp in queue in the flow when finish the process.</p>
+   <p>AMQP ack node. Return ack or nack for amqp in queue in the flow when finish the process.</p>
    <p>Don't use <b>msg.amqpfields</b>, is use to keep de tag from the queue to return the ack to the AMQP queue server.</p>
    <p>The amqp server config and the queue name in this node <b>must be</b> the same as the AMQP in in the flow of the messages.</p>
    <p>
