@@ -141,6 +141,9 @@ If use `msg.readFrom` in amqp in, ack node need a switch node for every queue na
 
 ## What's new     <a name="whatsnew"></a>
 
+### version 1.0.7
+- FIX messages without objects acks
+
 ### version 1.0.6
 - Add nack
 - Change control ack from global to flow

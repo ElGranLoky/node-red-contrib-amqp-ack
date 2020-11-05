@@ -170,21 +170,23 @@ function AmqpAck(n) {
       if (msg.amqpfields) {
         var localamqpobjectsacks = node.context().flow.get("amqpobjectsacks");
         var amqpfindack = localamqpobjectsacks.find( element => element.fields.deliveryTag === msg.amqpfields.deliveryTag);
-        try {
-          if (!node.nack) {
-            amqpfindack.ack();
-          } else {
-            amqpfindack.nack();
-          } 
-        } catch (e) {
-          node.context().flow.set("amqpobjectsacks", []);
-          node.error("Flow amqp objects acks with old values: " + e.message);
-        }
-        localamqpobjectsacks = localamqpobjectsacks.filter(function( obj ) {
-          return (obj.fields.deliveryTag !== msg.amqpfields.deliveryTag) && (obj.fields.consumerTag === msg.amqpfields.consumerTag);
-        });
-        node.context().flow.set("amqpobjectsacks", localamqpobjectsacks);
-        node.send(msg);  
+        if (amqpfindack) {
+          try {
+            if (!node.nack) {
+              amqpfindack.ack();
+            } else {
+              amqpfindack.nack();
+            } 
+         } catch (e) {
+            node.context().flow.set("amqpobjectsacks", []);
+            node.error("Flow amqp objects acks with old values: " + e.message);
+          }
+          localamqpobjectsacks = localamqpobjectsacks.filter(function( obj ) {
+            return (obj.fields.deliveryTag !== msg.amqpfields.deliveryTag) && (obj.fields.consumerTag === msg.amqpfields.consumerTag);
+          });
+          node.context().flow.set("amqpobjectsacks", localamqpobjectsacks);
+          node.send(msg);
+        }  
       } else {
         node.warn({
           error: "msg without amqpfields per ack",
