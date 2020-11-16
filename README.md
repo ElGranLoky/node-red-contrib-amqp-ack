@@ -141,6 +141,9 @@ If use `msg.readFrom` in amqp in, ack node need a switch node for every queue na
 
 ## What's new     <a name="whatsnew"></a>
 
+### version 1.0.8
+- Remove clear amqpobjectsacks when old values, send message instead
+
 ### version 1.0.7
 - FIX messages without objects acks
 

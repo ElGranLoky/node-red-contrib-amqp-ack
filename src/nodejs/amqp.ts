@@ -178,8 +178,7 @@ function AmqpAck(n) {
               amqpfindack.nack();
             } 
          } catch (e) {
-            node.context().flow.set("amqpobjectsacks", []);
-            node.error("Flow amqp objects acks with old values: " + e.message);
+            node.error("Flow amqp objects acks with old values restart flow: " + e.message);
           }
           localamqpobjectsacks = localamqpobjectsacks.filter(function( obj ) {
             return (obj.fields.deliveryTag !== msg.amqpfields.deliveryTag) && (obj.fields.consumerTag === msg.amqpfields.consumerTag);
