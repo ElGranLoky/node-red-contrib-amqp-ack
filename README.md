@@ -118,7 +118,7 @@ With prefetch enable, can enable timeout per msg in ms. After the timeout the ms
 
 ### Prefetch with ack node
 
-We can use a node ACK for send the ACK when the process end, without set a fixed time. In this mode, is use a global variable *amqpobjectsacks* to keep the tags for each msg.
+We can use a node ACK for send the ACK when the process end, without set a fixed time. In this mode, is use a flow variable *amqpobjectsacks* to keep the tags for each msg, **only one input node** can use per flow.
 
 ![Nodered Prefetch node ack](./img/nodered_prefetch_node_ack.png)
 
@@ -140,6 +140,11 @@ If use `msg.readFrom` in amqp in, ack node need a switch node for every queue na
 - Prefetch with only one msg sometimes stuck with ack node if have old data in amqpobjectsack
 
 ## What's new     <a name="whatsnew"></a>
+
+### version 1.0.9
+- FIX old values amqpobjectsacks when deploy and the variable is set
+- FIX lost acks when channel closed and change consumer tag when reconnect
+- FIX lost acks when msg rate is +75msg/seg _not recommended_
 
 ### version 1.0.8
 - Remove clear amqpobjectsacks when old values, send message instead
