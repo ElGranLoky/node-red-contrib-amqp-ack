@@ -110,7 +110,6 @@ module.exports = function(RED) {
           } else {
             var localamqpobjectsacks = node.context().flow.get("amqpobjectsacks");
             localamqpobjectsacks.push(Object.assign(msg));
-            node.context().flow.set("amqpobjectsacks", localamqpobjectsacks);
           };
         };
             node.src.activateConsumer(Consumeack, {noAck: (!node.server.prefetch)}).then(function () {
@@ -181,8 +180,7 @@ function AmqpAck(n) {
               // wait reconnection to reset        
               node.reconnection = true;                                                                            
               setTimeout(() => {                                                                                               
-                node.context().flow.set("amqpobjectsacks", []);                                                                
-                localamqpobjectsacks = node.context().flow.get("amqpobjectsacks");                                             
+                node.context().flow.set("amqpobjectsacks", []);                                                                                                             
                 node.src.recover(); 
                 node.reconnection = false;  }, 30000);                                                                               
               node.error("Amqp error (reset connection): " + e.message);                                                       
@@ -192,10 +190,7 @@ function AmqpAck(n) {
             }                                                                                                                  
           }                         
         }                                                                                                
-          localamqpobjectsacks = localamqpobjectsacks.filter(function (obj) {                                                      
-            return (obj.fields.deliveryTag !== msg.amqpfields.deliveryTag);                                                      
-          });                                                                                                                      
-          node.context().flow.set("amqpobjectsacks", localamqpobjectsacks);                                                        
+          localamqpobjectsacks = localamqpobjectsacks.filter(function (obj) { return (obj.fields.deliveryTag !== msg.amqpfields.deliveryTag);});                                                                                                                                                                             
           node.send(msg);                      
       } else {
         node.warn({
