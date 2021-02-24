@@ -88,50 +88,51 @@ module.exports = function(RED) {
     // set amqp node type initialization parameters
     node.amqpType = "input";
     node.src = null;
-    node.context().flow.set("amqpobjectsacks", []); 
+    node.context().flow.set("amqpobjectsacks", new Map());
 
     // node specific initialization code
     node.initialize = function () {
+      function Consumeack(msg) {
+        node.send({
+          topic: node.topic || msg.fields.routingKey,
+          payload: msg.getContent(),
+          amqpfields: msg.fields
+        });
+        if (node.server.prefetchack) {
+          setTimeout( function () {
+            try {
+              msg.ack();
+            } catch (ein) {
+              node.error("No ack send in last message");
+            }
+         }, Number(node.server.prefetchvalueack));
+        } else {
+          var localamqpobjectsacks = node.context().flow.get("amqpobjectsacks");
+          localamqpobjectsacks.set(msg.fields.deliveryTag, msg);
+          node.context().flow.set("amqpobjectsacks", localamqpobjectsacks);
+        };
+      }
+      function Consumenack(msg) {
+        node.send({
+          topic: node.topic || msg.fields.routingKey,
+          payload: msg.getContent(),
+          amqpMessage: msg
+        });
+      }
       if (node.server.prefetch) {
-        function Consumeack(msg) {
-          node.send({
-            topic: node.topic || msg.fields.routingKey,
-            payload: msg.getContent(),
-            amqpfields: msg.fields
-          });
-          if (node.server.prefetchack) {
-            setTimeout( function () {
-              try {
-                msg.ack();
-              } catch (ein) {
-                node.error("No ack send in last message");
-              }
-           }, Number(node.server.prefetchvalueack));
-          } else {
-            var localamqpobjectsacks = node.context().flow.get("amqpobjectsacks");
-            localamqpobjectsacks.push(Object.assign(msg));
-          };
-        };
-            node.src.activateConsumer(Consumeack, {noAck: (!node.server.prefetch)}).then(function () {
-              node.status({fill: "green", shape: "dot", text: "connected"});
-            }).catch(function (e) {
-              node.status({fill: "red", shape: "dot", text: "error"});
-              node.error("AMQP input error: " + e.message);
-            });
+        node.src.activateConsumer(Consumeack, {noAck: (!node.server.prefetch)}).then(function () {
+          node.status({fill: "green", shape: "dot", text: "connected"});
+        }).catch(function (e) {
+          node.status({fill: "red", shape: "dot", text: "error"});
+          node.error("AMQP input error: " + e.message);
+        });
       } else {
-        function Consumenack(msg) {
-          node.send({
-            topic: node.topic || msg.fields.routingKey,
-            payload: msg.getContent(),
-            amqpMessage: msg
-          });
-        };
-          node.src.activateConsumer(Consumenack, {noAck: (!node.server.prefetch)}).then(function () {
-            node.status({fill: "green", shape: "dot", text: "connected"});
-          }).catch(function (e) {
-            node.status({fill: "red", shape: "dot", text: "error"});
-            node.error("AMQP input error: " + e.message);
-          });
+        node.src.activateConsumer(Consumenack, {noAck: (!node.server.prefetch)}).then(function () {
+          node.status({fill: "green", shape: "dot", text: "connected"});
+        }).catch(function (e) {
+          node.status({fill: "red", shape: "dot", text: "error"});
+          node.error("AMQP input error: " + e.message);
+        });
       }
   };
     if (!node.ioName) {
@@ -167,31 +168,31 @@ function AmqpAck(n) {
     node.on("input", function (msg) {
       if (msg.amqpfields) {
         var localamqpobjectsacks = node.context().flow.get("amqpobjectsacks");
-        var amqpfindack = localamqpobjectsacks.find( element => element.fields.deliveryTag === msg.amqpfields.deliveryTag);
+        var amqpfindack = localamqpobjectsacks.get(msg.amqpfields.deliveryTag);
         if (amqpfindack) {
           try {
             if (!node.nack) {
               amqpfindack.ack();
             } else {
               amqpfindack.nack();
-            } 
+            }
           } catch (e) {
-            if (e.message === "Channel closed" && !node.reconnection){                                                                               
-              // wait reconnection to reset        
-              node.reconnection = true;                                                                            
-              setTimeout(() => {                                                                                               
-                node.context().flow.set("amqpobjectsacks", []);                                                                                                             
-                node.src.recover(); 
-                node.reconnection = false;  }, 30000);                                                                               
-              node.error("Amqp error (reset connection): " + e.message);                                                       
-            }                                                                                                                  
-            else {                                                                                                             
-              node.error("Amqp error: " + e.message);                                                                          
-            }                                                                                                                  
-          }                         
-        }                                                                                                
-          localamqpobjectsacks = localamqpobjectsacks.filter(function (obj) { return (obj.fields.deliveryTag !== msg.amqpfields.deliveryTag);});                                                                                                                                                                             
-          node.send(msg);                      
+            if (e.message === "Channel closed" && !node.reconnection) {
+              // wait reconnection to reset
+              node.reconnection = true;
+              setTimeout(() => {
+                node.context().flow.set("amqpobjectsacks", new Map());
+                node.src.recover();
+                node.reconnection = false;  }, 30000);
+              node.error("Amqp error (reset connection): " + e.message);
+            } else {
+              node.error("Amqp error: " + e.message);
+            }
+          }
+        }
+        localamqpobjectsacks.delete(msg.amqpfields.deliveryTag);
+        node.context().flow.set("amqpobjectsacks", localamqpobjectsacks);
+        node.send(msg);
       } else {
         node.warn({
           error: "msg without amqpfields per ack",

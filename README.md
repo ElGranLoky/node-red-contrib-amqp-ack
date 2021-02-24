@@ -141,8 +141,13 @@ If use `msg.readFrom` in amqp in, ack node need a switch node for every queue na
 
 ## What's new     <a name="whatsnew"></a>
 
+### version 1.1.1
+- Change amqpobjectsacks to object map
+- FIX declarations & lint code
+
 ### version 1.1.0
 - FIX no more lost acks with high rate message 
+
 ### version 1.0.9
 - FIX old values amqpobjectsacks when deploy and the variable is set
 - FIX lost acks when channel closed and change consumer tag when reconnect
