@@ -4,6 +4,7 @@ const fs = require("fs");
 const getos = require("getos");
 const util = require("util");
 const getOsPromise = util.promisify(getos);
+import * as querystring from 'querystring';
 
 var osDistroLowerCase;
 const defaultCaFileLocation = "/etc/ssl/certs/ca-certificates.crt";
@@ -272,7 +273,7 @@ function AmqpAck(n) {
         var urlType = node.useTls ? "amqps://" : "amqp://";
         var credentials = "";
         if (node.credentials.user) {
-          credentials = node.credentials.user + ":" + node.credentials.password + "@";
+          credentials = querystring.escape(node.credentials.user) + ":" + querystring.escape(node.credentials.password) + "@";
         }
         var urlLocation = node.host + ":" + node.port;
         if (node.vhost) {
