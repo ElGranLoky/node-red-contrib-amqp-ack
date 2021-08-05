@@ -141,6 +141,10 @@ If use `msg.readFrom` in amqp in, ack node need a switch node for every queue na
 
 ## What's new     <a name="whatsnew"></a>
 
+### version 1.1.2
+- [Encode username and password](http://www.squaremobius.net/amqp.node/channel_api.html#connect) percent-encoding format (pauldeng)
+- Improve the Fast developer section
+
 ### version 1.1.1
 - Change amqpobjectsacks to object map
 - FIX declarations & lint code
@@ -228,15 +232,19 @@ If use `msg.readFrom` in amqp in, ack node need a switch node for every queue na
  * Test suite in place
  
 ## Fast developer <a name="developer"></a>
- - git clone repository
- - docker build . -f Dockerfile -t gulp:latest
- - docker run -v ${PWD}:/src gulp 
- - docker run -v ${PWD}:/install -p 1880:1880 --name noderedtest nodered/node-red:latest-minimal
- - docker exec -it noderedtest bash
- - cd /usr/src/node-red/
- - npm install /install
- - exit
- - docker restart noderedtest
+ - In your host:
+   - git clone repository (git clone https://github.com/ElGranLoky/node-red-contrib-amqp-ack.git)
+   - cd node-red-contrib-amqp-ack
+   - docker build . -f Dockerfile -t gulp:latest
+   - docker run -v ${PWD}:/src gulp 
+   - docker run -v ${PWD}:/install -p 1880:1880 --name noderedtest nodered/node-red:latest-minimal
+   - Control + C
+   - docker exec -it noderedtest bash
+ - Inside the container noderedtest:  
+   - cd /usr/src/node-red/
+   - npm install /install
+   - exit
+ - In your host:  
+   - docker restart noderedtest
 
-
-
+Now you can access http://localhost:1880 and test the node-red-contrib-amqp-ack in nodered running in yout host.
