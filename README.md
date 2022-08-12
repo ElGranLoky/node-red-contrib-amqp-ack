@@ -141,6 +141,10 @@ If use `msg.readFrom` in amqp in, ack node need a switch node for every queue na
 
 ## What's new     <a name="whatsnew"></a>
 
+### version 1.1.3
+- BUMP dependencies
+- Support Nodered 3.0
+  
 ### version 1.1.2
 - [Encode username and password](http://www.squaremobius.net/amqp.node/channel_api.html#connect) percent-encoding format (pauldeng)
 - Improve the Fast developer section
