@@ -1,21 +1,19 @@
+ATTENTION
+====================================
+The project uses the [amqp-ts](https://www.npmjs.com/package/amqp-ts) library and this in turn uses the [amqplib](https://www.npmjs.com/package/amqplib) library. Unfortunately the amqp-ts library has not been updated for 3 years and is anchored to the amqplib@0.4.2 version which only supports node up to version 8.
+
+It would be necessary to refactor the entire project to be able to change the node version using new libraries like [amqp-connection-manager](https://www.npmjs.com/package/amqp-connection-manager) or wait for the amqp-ts version to be updated with new versions of amqp-lib, as this may not happen, it is recommended to change projects for new versions of node.
+
+As an alternative you can use [@meowwolf/node-red-contrib-amqp](https://flows.nodered.org/node/@meowwolf/node-red-contrib-amqp)
+
 Node-RED AMQP input and output nodes
 ====================================
-
 
 `node-red-contrib-amqp-ack` is a [Node-RED](http://nodered.org/docs/creating-nodes/packaging.html) package that connects directly to an AMQP server (e.g. [RabbitMQ](https://www.rabbitmq.com/)). It contains an input, an output and a configuration node to connect to AMQP exchanges or queues for Node-RED with ack control.
 
 It uses the [amqp-ts](https://github.com/abreits/amqp-ts) library for the AMQP connectivity.
 
 Thanks to [abreits](https://flows.nodered.org/user/abreits) for release [node-red-contrib-amqp](https://flows.nodered.org/node/node-red-contrib-amqp)
-
-
-#ATTENTION
-
-The project uses the [amqp-ts](https://www.npmjs.com/package/amqp-ts) library and this in turn uses the [amqplib](https://www.npmjs.com/package/amqplib) library. Unfortunately the amqp-ts library has not been updated for 3 years and is anchored to the amqplib@0.4.2 version which only supports node up to version 8.
-
-It would be necessary to refactor the entire project to be able to change the node version using new libraries like [amqp-connection-manager](https://www.npmjs.com/package/amqp-connection-manager) or wait for the amqp-ts version to be updated with new versions of amqp-lib, as this may not happen, it is recommended to change projects for new versions of node.
-
-As an alternative you can use [@meowwolf/node-red-contrib-amqp](https://flows.nodered.org/node/@meowwolf/node-red-contrib-amqp)
 
 ## Table of Contents
 - [Installation](#installation)
